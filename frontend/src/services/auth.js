@@ -11,12 +11,18 @@ export const authorize = async (params) => {
 };
 
 export const reqAccessToken = async (params, auth) => {
-  const response = await axios.post(url, {
-    params,
-    headers: {
-      Authorization: `Basic ${auth}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+  const headers = {
+    Authorization: `Basic ${auth}`,
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+
+  const response = await axios.post(
+    url,
+    {},
+    {
+      params,
+      headers,
+    }
+  );
   return response.data;
 };
