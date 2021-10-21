@@ -1,56 +1,40 @@
-import SpotifyWebApi from 'spotify-web-api-js/src/spotify-web-api';
-import { reqAccessToken } from './services/auth';
+import React, { useState, useEffect } from 'react';
+import SpotifyWebApi from 'spotify-web-api-js';
+import { Login } from './components/Login';
+import { getTokenFromUrl } from './spotify';
+import { useStateContext } from './context/StateContext';
 import './App.css';
 
+const spotify = new SpotifyWebApi();
+
 function App() {
-  const url = 'https://accounts.spotify.com/authorize';
-  const scope = 'user-read-private user-read-email';
-  const currentUrl = new URL(window.location);
-  let token = '';
+  const [_token, setToken] = useState();
+  const [{ user, playlists }, dispatch] = useStateContext();
 
-  const params = {
-    response_type: 'code',
-    client_id: process.env.REACT_APP_CLIENT_ID,
-    scope: scope,
-    redirect_uri: 'http://localhost:3000',
-  };
+  useEffect(() => {
+    const hash = getTokenFromUrl();
+    window.location.hash = '';
+    const hashToken = hash.access_token;
 
-  const getEncodedString = (clientId, clientSecret) => {
-    const string = `${clientId}:${clientSecret}`;
-    return string.toString('base64');
-  };
-
-  if (currentUrl.searchParams.get('code')) {
-    token = currentUrl.searchParams.get('code');
-    console.log(token);
-    const response = reqAccessToken(
-      {
-        grant_type: 'authorization_code',
-        code: token,
-        redirect_uri: params.redirect_uri,
-      },
-      getEncodedString(
-        process.env.REACT_APP_CLIENT_ID,
-        process.env.REACT_APP_CLIENT_SECRET
-      )
-    );
-  }
-
-  const handleAuthLink = () => {
-    if (token) {
-      return <h2>{token}</h2>;
+    if (hashToken) {
+      setToken(hashToken);
+      dispatch({ type: 'SET_TOKEN', token: hashToken });
+      spotify.setAccessToken(hashToken);
+      spotify.getMe().then((user) => {
+        dispatch({ type: 'SET_USER', user: user });
+      });
+      spotify
+        .getPlaylist('2GJR11VlkxRpLjtxs4ymCP?si=bb73313d06324bac')
+        .then((playlists) => {
+          dispatch({ type: 'SET_PLAYLISTS', playlists: playlists });
+        });
     }
+  }, [_token, dispatch]);
 
-    const authUrl = new URL(url);
-    authUrl.searchParams.append('response_type', params.response_type);
-    authUrl.searchParams.append('client_id', params.client_id);
-    authUrl.searchParams.append('scope', params.scope);
-    authUrl.searchParams.append('redirect_uri', params.redirect_uri);
+  console.log(user);
+  console.log(playlists);
 
-    return <div className="App">{<a href={authUrl.toString()}>Link</a>}</div>;
-  };
-
-  return handleAuthLink();
+  return <div className="app">{_token ? <h2>Logged in</h2> : <Login />}</div>;
 }
 
 export default App;
