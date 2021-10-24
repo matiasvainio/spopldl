@@ -1,40 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { Login } from './components/Login';
+import { TrackList } from './components/TrackList';
 import { getTokenFromUrl } from './spotify';
 import { useStateContext } from './context/StateContext';
+import { SideBar } from './components/SideBar';
+import { Home } from './components/Home';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+} from 'react-router-dom';
 import './App.css';
 
 const spotify = new SpotifyWebApi();
 
 function App() {
-  const [_token, setToken] = useState();
-  const [{ user, playlists }, dispatch] = useStateContext();
+  const [state, dispatch] = useStateContext();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const hash = getTokenFromUrl();
     window.location.hash = '';
     const hashToken = hash.access_token;
 
+    console.log(spotify);
     if (hashToken) {
-      setToken(hashToken);
       dispatch({ type: 'SET_TOKEN', token: hashToken });
       spotify.setAccessToken(hashToken);
       spotify.getMe().then((user) => {
         dispatch({ type: 'SET_USER', user: user });
+        setLoading(false);
       });
-      spotify
-        .getPlaylist('2GJR11VlkxRpLjtxs4ymCP?si=bb73313d06324bac')
-        .then((playlists) => {
-          dispatch({ type: 'SET_PLAYLISTS', playlists: playlists });
-        });
     }
-  }, [_token, dispatch]);
+  }, [dispatch]);
 
-  console.log(user);
-  console.log(playlists);
+  const conditionalRender = () => {
+    if (loading) {
+      return <Login />;
+    } else {
+      return <Home spotify={spotify} />;
+    }
+  };
 
-  return <div className="app">{_token ? <h2>Logged in</h2> : <Login />}</div>;
+  return conditionalRender();
 }
 
 export default App;
