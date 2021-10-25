@@ -25,7 +25,7 @@ export const reducer = (state, action) => {
     case 'SET_RECORDS':
       return {
         ...state,
-        records: action.playlists,
+        records: action.records,
       };
     default:
       return state;
