@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { SideBar } from './SideBar';
 import { useStateContext } from '../context/StateContext';
 
 export const Home = ({ spotify }) => {
-  const [state, dispatch] = useStateContext();
+  const [state] = useStateContext();
   const [loading, setLooading] = useState(true);
   const [tracks, setTracks] = useState([]);
   const [showTracks, setShowTracks] = useState(false);
@@ -12,16 +11,21 @@ export const Home = ({ spotify }) => {
   useEffect(() => {
     if (state.playlists.items) {
       setLooading(false);
+      console.log(state);
     }
   }, [state]);
 
-  const getTracksForPlaylist = (id) => {
-    if (showTracks) setShowTracks(false);
-    setId(id);
-    spotify.getPlaylist(id).then((x) => {
-      setTracks(x.tracks.items);
-      setShowTracks(!showTracks);
-    });
+  const handlePlaylistClick = (_id) => {
+    // If selected playlist is already shown hide it.
+    if (_id === id) {
+      setShowTracks(false);
+    } else {
+      setId(_id);
+      spotify.getPlaylist(_id).then((x) => {
+        setTracks(x.tracks.items);
+        setShowTracks(true);
+      });
+    }
   };
 
   const renderTracks = (_id) => {
@@ -40,7 +44,7 @@ export const Home = ({ spotify }) => {
         return (
           <ul
             style={{ color: 'pink' }}
-            onClick={() => getTracksForPlaylist(x.id)}
+            onClick={() => handlePlaylistClick(x.id)}
           >
             {x.name}
             {showTracks ? renderTracks(x.id) : ''}
