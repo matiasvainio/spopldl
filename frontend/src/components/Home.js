@@ -1,27 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SideBar } from './SideBar';
-import { TrackList } from './TrackList';
 import { useStateContext } from '../context/StateContext';
 
-export const Home = (props) => {
-  const spotify = props;
+export const Home = ({ spotify }) => {
   const [state, dispatch] = useStateContext();
+  const [loading, setLooading] = useState(true);
+  const [tracks, setTracks] = useState([]);
+  const [showTracks, setShowTracks] = useState(false);
+  const [id, setId] = useState('');
 
   useEffect(() => {
-    spotify.getMe().then((user) => {
-      console.log(user);
-    });
-  });
+    if (state.playlists.items) {
+      setLooading(false);
+    }
+  }, [state]);
 
-  console.log(state);
+  const getTracksForPlaylist = (id) => {
+    if (showTracks) setShowTracks(false);
+    setId(id);
+    spotify.getPlaylist(id).then((x) => {
+      setTracks(x.tracks.items);
+      setShowTracks(!showTracks);
+    });
+  };
+
+  const renderTracks = (_id) => {
+    if (_id === id) {
+      return tracks.map((x) => (
+        <li style={{ color: 'black' }}>{x.track.name}</li>
+      ));
+    } else {
+      return '';
+    }
+  };
+
+  const renderPlaylists = () => {
+    if (!loading) {
+      return state.playlists.items.map((x) => {
+        return (
+          <ul
+            style={{ color: 'pink' }}
+            onClick={() => getTracksForPlaylist(x.id)}
+          >
+            {x.name}
+            {showTracks ? renderTracks(x.id) : ''}
+          </ul>
+        );
+      });
+    } else {
+      return 'Loading...';
+    }
+  };
+
   return (
     <div>
-      <SideBar />
-      <article className="ml-16 w-screen h-screen">
-        <h2>Home page</h2>
-        <h3>Playlists:</h3>
-        <TrackList />
-      </article>
+      <h2>Home</h2>
+      <ul>{renderPlaylists()}</ul>
     </div>
   );
 };
