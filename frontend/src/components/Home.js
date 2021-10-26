@@ -5,9 +5,9 @@ import { TrackList } from './TrackList';
 
 export const Home = ({ spotify }) => {
   return (
-    <div>
-      <SideBar />
-      <TrackList spotify={spotify} />
+    <div className="flex w-screen h-auto text-white font-mono bg-background">
+      <SideBar spotify={spotify} />
+      <TrackList />
     </div>
   );
 };
