@@ -1,66 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useStateContext } from '../context/StateContext';
-import { TrackItem } from './TrackItem';
 
-export const TrackList = ({ spotify }) => {
+export const TrackList = () => {
   const [state] = useStateContext();
-  const [loading, setLooading] = useState(true);
-  const [tracks, setTracks] = useState([]);
-  const [showTracks, setShowTracks] = useState(false);
-  const [id, setId] = useState('');
 
-  useEffect(() => {
-    if (state.playlists.items) {
-      setLooading(false);
-      console.log(state);
-    }
-  }, [state]);
-
-  const handlePlaylistClick = (_id) => {
-    // If selected playlist is already shown hide it.
-    if (_id === id && showTracks) {
-      setShowTracks(false);
-    } else {
-      setId(_id);
-      spotify.getPlaylist(_id).then((x) => {
-        setTracks(x.tracks.items);
-        setShowTracks(true);
-      });
-    }
-  };
-
-  const renderTracks = (_id) => {
-    if (_id === id) {
-      return tracks.map((x) => (
-        // <li style={{ color: 'black' }}>{x.track.name}</li>
-        <TrackItem info={x} />
+  const getTrackNames = () => {
+    if (state.tracks) {
+      console.log(state.tracks);
+      return state.tracks.map((x) => (
+        <tr>
+          <td>{x.track.name}</td>
+          <td>{getArtistNames(x.track)}</td>
+          <td>{getAlbumName(x.track)}</td>
+        </tr>
       ));
-    } else {
-      return '';
     }
   };
 
-  const renderPlaylists = () => {
-    if (!loading) {
-      return state.playlists.items.map((x) => {
-        return (
-          <ul
-            className="text-white text-2xl font-bold"
-            onClick={() => handlePlaylistClick(x.id)}
-          >
-            {x.name}
-            {showTracks ? renderTracks(x.id) : ''}
-          </ul>
-        );
-      });
-    } else {
-      return 'Loading...';
-    }
+  const getArtistNames = (track) => {
+    return track.artists.map((x) => <p>{x.name}</p>);
   };
+
+  const getAlbumName = (track) => {
+    return track.album.name;
+  };
+
+  const returnTable = () => {
+    return (
+      <table className="w-full">
+        <tr className="text-left">
+          <th>Name</th>
+          <th>Artist</th>
+          <th>Album</th>
+          <th>Links</th>
+        </tr>
+        {getTrackNames()}
+      </table>
+    );
+  };
+
   return (
-    <div className="ml-16 bg-gray-800">
-      <h2 className="font-bold text-9xl">Playlists</h2>
-      {renderPlaylists()}
+    <div className="text-sidebarText ml-16 mt-14 w-screen">
+      <h2 className="text-3xl mb-8">{state.currPlaylist}</h2>
+      {state.currPlaylist ? returnTable() : <p>Such empty...</p>}
     </div>
   );
 };
