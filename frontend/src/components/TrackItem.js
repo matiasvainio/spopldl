@@ -2,7 +2,6 @@ import React from 'react';
 
 export const TrackItem = (props) => {
   const { info } = props;
-  console.log(info.track.artists);
 
   const getArtists = (artists) => {
     if (artists)
@@ -13,7 +12,7 @@ export const TrackItem = (props) => {
   };
 
   return (
-    <li className="bg-gray-900 white font-normal">
+    <li className="bg-gray-900 white font-normal pt-4">
       <span>{info.track.name}</span>
       <br></br>
       {getArtists(info.track.artists)}
