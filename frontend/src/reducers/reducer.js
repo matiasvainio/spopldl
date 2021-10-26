@@ -2,7 +2,8 @@ export const initState = {
   user: null,
   token: null,
   playlists: [],
-  records: [],
+  currPlaylist: null,
+  tracks: [],
 };
 
 export const reducer = (state, action) => {
@@ -22,10 +23,15 @@ export const reducer = (state, action) => {
         ...state,
         playlists: action.playlists,
       };
-    case 'SET_RECORDS':
+    case 'SET_CURR_PLAYLIST':
       return {
         ...state,
-        records: action.records,
+        currPlaylist: action.currPlaylist,
+      };
+    case 'SET_TRACKS':
+      return {
+        ...state,
+        tracks: action.tracks,
       };
     default:
       return state;
