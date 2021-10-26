@@ -11,21 +11,7 @@ import './App.css';
 const spotify = new SpotifyWebApi();
 
 function App() {
-  const [state, dispatch] = useStateContext();
-
-  // const getRecords = async (playlists) => {
-  //   const arr = [];
-  //   if (playlists.items) {
-  //     for (let i = 0; i < playlists.items.length; i++) {
-  //       const record = await spotify.getPlaylist(playlists.items[i].id, {
-  //         limit: 20,
-  //       });
-  //       arr.push(record.tracks.items);
-  //     }
-  //   }
-  //   console.log(arr);
-  //   return arr;
-  // };
+  const [, dispatch] = useStateContext();
 
   useEffect(() => {
     const hash = getTokenFromUrl();
